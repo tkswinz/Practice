@@ -98,7 +98,6 @@ ollama pull qwen2.5:14b           # or any other LLM you prefer
 ### With Docker (recommended)
 
 ```bash
-git clone https://github.com/MatteoAdamo82/doc-analyzer
 cd doc-analyzer
 cp .env.example .env
 # Edit .env and set LLM_MODEL to the model you pulled
