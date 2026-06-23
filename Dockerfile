@@ -1,0 +1,38 @@
+FROM python:3.11-slim
+
+# Install system dependencies
+RUN apt-get update && apt-get install -y \
+    poppler-utils \
+    tesseract-ocr \
+    libtesseract-dev \
+    antiword \
+    unrtf \
+    && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /app
+
+# Create data directory with correct permissions
+RUN mkdir -p /app/data && chmod 777 /app/data
+RUN mkdir -p /app/data/qdrant && chmod 777 /app/data/qdrant
+
+# Copy requirements and setup files
+COPY requirements.txt requirements-dev.txt setup.py ./
+
+# Copy source code and tests
+COPY src/ ./src/
+COPY tests/ ./tests/
+
+# Install dependencies and package in development mode
+RUN pip install --no-cache-dir -r requirements.txt \
+    && pip install --no-cache-dir -r requirements-dev.txt \
+    && pip install -e .
+
+# Environment variables
+ENV OLLAMA_HOST=${OLLAMA_HOST}
+ENV OLLAMA_PORT=${OLLAMA_PORT}
+ENV PYTHONPATH=/app
+
+EXPOSE 8000
+
+# Default command
+CMD ["uvicorn", "src.app:app", "--host", "0.0.0.0", "--port", "8000"]
